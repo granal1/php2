@@ -15,4 +15,9 @@ class User
         $this->lastName = $lastName;
     }
 
+        public function __toString()
+    {
+        return 'id=' . $this->id . ', firstName=' . $this->firstName . ', lastName=' . $this->lastName;
+    }
+
 }

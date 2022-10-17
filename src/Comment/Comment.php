@@ -20,4 +20,9 @@ class Comment
         $this->comment = $comment;
     }
 
+    public function __toString()
+    {
+        return 'id=' . $this->id . ', authorId=' . $this->authorId . ', articleId=' . $this->articleId . ', comment=' . $this->comment;
+    }
+
 }
