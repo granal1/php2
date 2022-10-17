@@ -1,0 +1,16 @@
+{
+    "name": "granal1/php2",
+    "description": "educational project",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Granal1\\Php2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "granal1"
+        }
+    ],
+    "require": {}
+}
