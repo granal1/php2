@@ -2,6 +2,4 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-
-    echo 'привет';
-?>
+require __DIR__.'/../cli.php';
