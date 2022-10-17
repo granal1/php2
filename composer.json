@@ -12,5 +12,7 @@
             "name": "granal1"
         }
     ],
-    "require": {}
+    "require": {
+        "fakerphp/faker": "^1.20"
+    }
 }
