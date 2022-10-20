@@ -1,28 +1,51 @@
 <?php
 
-require_once ('vendor/autoload.php');
+use Granal1\Php2\Blog\Command\CreateUserCommand;
+use Granal1\Php2\Blog\Command\Arguments;
+use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
+use Granal1\Php2\Blog\Repositories\PostRepository\SqlitePostRepository;
+use Granal1\Php2\Blog\Repositories\CommentRepository\SqliteCommentRepository;
+use Granal1\Php2\Blog\Post;
+use Granal1\Php2\Blog\Comment;
+use Granal1\Php2\Blog\User;
+use Granal1\Php2\Person\Name;
+use Granal1\Php2\Blog\UUID;
 
-use Granal1\Php2\User\User;
-use Granal1\Php2\Post\Post;
-use Granal1\Php2\Comment\Comment;
+include __DIR__ . "/vendor/autoload.php";
 
-if(array_key_exists('1', $argv)){
-    $faker = Faker\Factory::create();
+$connection = new PDO ('sqlite:' . __DIR__ . '/blog.sqlite');
 
-    foreach ($argv as $value) {
-        if ($value == 'user'){
-            $user = new User(1, $faker->firstName, $faker->lastName);
-            echo $user->firstName . ' ' . $user->firstName . PHP_EOL;
-        }
+//Создаём объект репозитория
+//$usersRepository = new SqliteUsersRepository($connection); // Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository
+//$command = new CreateUserCommand($usersRepository);
 
-        if ($value == 'post'){
-            $post = new Post(1, 1, $faker->text($maxNbChars = 20), $faker->text($maxNbChars = 200));
-            echo $post->title . ' >>> ' . $post->content . PHP_EOL;
-        }
+//Добавляем в репозиторий несколько пользователей
+//$usersRepository->save(new User(UUID::random(), new Name('Ivan', 'Nikitin'), "admin"));
+//$usersRepository->save(new User(UUID::random(), new Name('Anna', 'Petrova'), "user"));
+//$usersRepository->save(new User(UUID::random(), new Name('Ivan', 'Nikitin'), "admin"));
+//$usersRepository->save(new User(UUID::random(), new Name('Anna', 'Petrova'), "user"));
+//echo $usersRepository->getByUsername("admin");
 
-        if ($value == 'comment'){
-            $comment = new Comment(1, 1, 1, $faker->text($maxNbChars = 50));
-            echo $comment->comment . PHP_EOL;
-        }
-    }
+/*
+try{
+    $command->handle(Arguments::fromArgv($argv));
+}catch (Exception $e){
+    echo "{$e->getMessage()}\n";
 }
+*/
+// проверка записи
+/*
+$postRepository = new SqlitePostRepository($connection);
+$postRepository->save(  new Post(UUID::random(), 
+                        new UUID("5fd5b1d4-8b2f-4c96-a82d-469c96aa38ab"), 
+                        "Заголовок статьи автора paul155",
+                        "Текст статьи автора paul155"));
+*/
+
+/*
+$commentRepository = new SqliteCommentRepository($connection);
+$commentRepository->save(   new Comment(UUID::random(), 
+                            new UUID("7697cfc7-1bee-4218-984a-58d0a618d039"), 
+                            new UUID("5fd5b1d4-8b2f-4c96-a82d-469c96aa38ab"), 
+                            "Комментарий 2 к посту автора paul155"));
+*/

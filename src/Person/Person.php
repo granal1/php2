@@ -1,6 +1,6 @@
 <?php
 
-namespace Granal1\Php2\User;
+namespace Granal1\Php2\Person;
 
 class User
 {
