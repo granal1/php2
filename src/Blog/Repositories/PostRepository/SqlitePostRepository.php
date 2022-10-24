@@ -5,6 +5,8 @@ namespace Granal1\Php2\Blog\Repositories\PostRepository;
 use Granal1\Php2\Blog\Post;
 use Granal1\Php2\Blog\UUID;
 use Granal1\Php2\Blog\Exceptions\PostNotFoundException;
+use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
+use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use PDO;
 use PDOStatement;
 
@@ -26,7 +28,7 @@ class SqlitePostRepository implements PostRepositoryInterface
 
         $statement->execute([
             ':uuid' => (string)$post->getUuid(),
-            ':author_uuid' => (string)$post->getAuthorUuid(),
+            ':author_uuid' => $post->getUser()->uuid(),
             ':title' => $post->getTitle(),
             ':text' => $post->getText()
         ]);
@@ -40,6 +42,7 @@ class SqlitePostRepository implements PostRepositoryInterface
         $statement->execute([
             ':uuid' => (string)$uuid,
         ]);
+
         return $this->getPost($statement, $uuid);
     }
 
@@ -48,13 +51,16 @@ class SqlitePostRepository implements PostRepositoryInterface
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if (false === $result) {
             throw new PostNotFoundException(
-            "Cannot find user: $uuid \n"
+            "Cannot find post: $uuid \n"
             );
         }
 
+        $usersRepository = new SqliteUsersRepository($this->connection);
+        $user = $usersRepository->get(new UUID($result['author_uuid']));
+
         return new Post(
             new UUID($result['uuid']),
-            new UUID($result['author_uuid']),
+            $user,
             $result['title'],
             $result['text']
         );

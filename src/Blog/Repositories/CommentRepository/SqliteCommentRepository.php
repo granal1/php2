@@ -4,7 +4,11 @@ namespace Granal1\Php2\Blog\Repositories\CommentRepository;
 
 use Granal1\Php2\Blog\Comment;
 use Granal1\Php2\Blog\UUID;
+use Granal1\Php2\Blog\Post;
+use Granal1\Php2\Blog\User;
 use Granal1\Php2\Blog\Exceptions\CommentNotFoundException;
+use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
+use Granal1\Php2\Blog\Repositories\PostRepository\SqlitePostRepository;
 use PDO;
 use PDOStatement;
 
@@ -26,8 +30,8 @@ class SqliteCommentRepository implements CommentRepositoryInterface
 
         $statement->execute([
             ':uuid' => (string)$comment->getUuid(),
-            ':post_uuid' => (string)$comment->getPostUuid(),
-            ':author_uuid' => (string)$comment->getAuthorUuid(),
+            ':post_uuid' => (string)$comment->getPost()->getUuid(),
+            ':author_uuid' => (string)$comment->getUser()->uuid(),
             ':text' => $comment->getText()
         ]);
     }
@@ -48,14 +52,20 @@ class SqliteCommentRepository implements CommentRepositoryInterface
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if (false === $result) {
             throw new CommentNotFoundException(
-            "Cannot find user: $uuid"
+            "Cannot find comment: $uuid"
             );
         }
 
+        $usersRepository = new SqliteUsersRepository($this->connection);
+        $user = $usersRepository->get(new UUID($result['author_uuid']));
+
+        $postRepository = new SqlitePostRepository($this->connection);
+        $post = $postRepository->get(new UUID($result['post_uuid']));
+
         return new Comment(
             new UUID($result['uuid']),
-            new UUID($result['post_uuid']),
-            new UUID($result['author_uuid']),
+            $post,
+            $user,
             $result['text']
         );
     }
