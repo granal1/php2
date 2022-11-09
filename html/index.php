@@ -9,6 +9,7 @@ use Granal1\Php2\Http\ErrorResponse;
 use Granal1\Php2\Http\Actions\Users\FindByUsername;
 use Granal1\Php2\Http\Actions\Posts\FindPostByUuid;
 use Granal1\Php2\Http\Actions\Posts\CreatePost;
+use Granal1\Php2\Http\Actions\Posts\DeletePost;
 use Granal1\Php2\Http\Actions\Comments\CreateComment;
 
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
@@ -78,6 +79,13 @@ $routes = [
                                 new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
                             ),
                             new SqliteUsersRepository(
+                                new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
+                            )
+                        ),
+    ],
+    'DELETE' => [
+        '/posts' => new DeletePost(
+                            new SqlitePostRepository(
                                 new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
                             )
                         ),
