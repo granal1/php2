@@ -11,10 +11,12 @@ use Granal1\Php2\Http\Actions\Posts\FindPostByUuid;
 use Granal1\Php2\Http\Actions\Posts\CreatePost;
 use Granal1\Php2\Http\Actions\Posts\DeletePost;
 use Granal1\Php2\Http\Actions\Comments\CreateComment;
+use Granal1\Php2\Http\Actions\Likes\PostLikeAction;
 
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Granal1\Php2\Blog\Repositories\PostRepository\SqlitePostRepository;
 use Granal1\Php2\Blog\Repositories\CommentRepository\SqliteCommentRepository;
+use Granal1\Php2\Blog\Repositories\PostLikeRepository\SqlitePostLikeRepository;
 use Granal1\Php2\Blog\UUID;
 
 use Granal1\Php2\Blog\Exceptions\HttpException;
@@ -63,6 +65,18 @@ $routes = [
     ],
     'POST' => [
         '/posts/create' => new CreatePost(
+                            new SqlitePostRepository(
+                                new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
+                            ),
+                            new SqliteUsersRepository(
+                                new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
+                            )
+                        ),
+
+        '/posts/postLike' => new PostLikeAction(
+                            new SqlitePostLikeRepository(
+                                new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
+                            ),
                             new SqlitePostRepository(
                                 new PDO('sqlite:' . dirname(__DIR__, 1) . '/blog.sqlite')
                             ),
