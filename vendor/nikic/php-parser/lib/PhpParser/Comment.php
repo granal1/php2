@@ -227,7 +227,6 @@ class Comment implements \JsonSerializable
         return [
             'nodeType' => $type,
             'text' => $this->text,
-            // TODO: Rename these to include "start".
             'line' => $this->startLine,
             'filePos' => $this->startFilePos,
             'tokenPos' => $this->startTokenPos,

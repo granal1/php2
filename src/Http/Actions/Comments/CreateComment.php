@@ -18,6 +18,8 @@ use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
 use Granal1\Php2\Blog\Repositories\CommentRepository\CommentRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
+use Psr\Log\LoggerInterface;
+
 
 class CreateComment implements ActionInterface
 {
@@ -26,6 +28,8 @@ class CreateComment implements ActionInterface
         private CommentRepositoryInterface $commentRepository,
         private PostRepositoryInterface $postRepository,
         private UserRepositoryInterface $userRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger
         ) {
     }
 
@@ -49,6 +53,7 @@ class CreateComment implements ActionInterface
         try {
             $author = $this->userRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->warning("Author not find: $authorUuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
@@ -56,6 +61,7 @@ class CreateComment implements ActionInterface
         try {
             $post = $this->postRepository->get($postUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->warning("Post not find: $postUuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
@@ -78,6 +84,10 @@ class CreateComment implements ActionInterface
         // Возвращаем успешный ответ,
         // содержащий UUID нового коментария
         $this->commentRepository->save($comment);
+
+        // Логируем UUID новой статьи
+        $this->logger->info("Comment created: $newCommentUuid");
+
         return new SuccessfulResponse([
             'uuid' => (string)$newCommentUuid,
         ]);

@@ -21,6 +21,7 @@ use Granal1\Php2\Blog\PostLike;
 use Granal1\Php2\Blog\Exceptions\HttpException;
 use Granal1\Php2\Blog\Exceptions\InvalidArgumentException;
 use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
+use Psr\Log\LoggerInterface;
 
 class PostLikeAction implements ActionInterface
 {
@@ -28,6 +29,8 @@ class PostLikeAction implements ActionInterface
         private PostLikeRepositoryInterface $postLikeRepository,
         private PostRepositoryInterface $postRepository,
         private UserRepositoryInterface $userRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger
         ) {
     }
 
@@ -51,6 +54,7 @@ class PostLikeAction implements ActionInterface
         try {
             $post = $this->postRepository->get($postUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->warning("Post not find: $postUuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
@@ -58,6 +62,7 @@ class PostLikeAction implements ActionInterface
         try {
             $author = $this->userRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->warning("Author not find: $authorUuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
         
@@ -80,6 +85,10 @@ class PostLikeAction implements ActionInterface
         // Возвращаем успешный ответ,
         // содержащий итоговое количество лайков в статье
         $this->postLikeRepository->save($postLike);
+
+        // Логируем UUID новой статьи
+        $this->logger->info("PostLike processed: $newPostLikeUuid"); 
+
         $postLikeCount = $this->postLikeRepository->getByPostUuid($postLike->getPost());
         return new SuccessfulResponse([
             'postLikeCount' => $postLikeCount,

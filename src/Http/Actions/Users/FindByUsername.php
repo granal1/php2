@@ -10,7 +10,7 @@ use Granal1\Php2\Http\ErrorResponse;
 use Granal1\Php2\Http\SuccessfulResponse;
 use Granal1\Php2\Http\Request;
 use Granal1\Php2\Http\Response;
-
+use Psr\Log\LoggerInterface;
 
 
 class FindByUsername implements ActionInterface
@@ -18,8 +18,10 @@ class FindByUsername implements ActionInterface
     // Нам понадобится репозиторий пользователей,
     // внедряем его контракт в качестве зависимости
     public function __construct(
-        private UserRepositoryInterface $userRepository
-    ) {
+        private UserRepositoryInterface $userRepository,
+        private LoggerInterface $logger) // Добавили зависимость от логгера
+    {
+        //
     }
 
     // Функция, описанная в контракте
@@ -40,9 +42,10 @@ class FindByUsername implements ActionInterface
             // Пытаемся найти пользователя в репозитории
             $user = $this->userRepository->getByUsername($username);
         } catch (UserNotFoundException $e) {
-
+            
             // Если пользователь не найден -
             // возвращаем неуспешный ответ
+            $this->logger->warning("User not find: $username.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
