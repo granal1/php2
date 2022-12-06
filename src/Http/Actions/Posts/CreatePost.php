@@ -15,9 +15,10 @@ use Granal1\Php2\Blog\User;
 use Granal1\Php2\Blog\Exceptions\HttpException;
 use Granal1\Php2\Blog\Exceptions\InvalidArgumentException;
 use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
+use Granal1\Php2\Blog\Exceptions\AuthException;
 
 use Granal1\Php2\Blog\Repositories\PostRepository\PostRepositoryInterface;
-use Granal1\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
+use Granal1\Php2\Http\Auth\TokenAuthenticationInterface;
 use Psr\Log\LoggerInterface;
 
 class CreatePost implements ActionInterface
@@ -25,26 +26,21 @@ class CreatePost implements ActionInterface
     // Внедряем репозитории статей и пользователей
     public function __construct(
         private PostRepositoryInterface $postRepository,
-        private UserRepositoryInterface $userRepository,
+        private TokenAuthenticationInterface $authentication,
         // Внедряем контракт логгера
         private LoggerInterface $logger
-        ) {
+        ) 
+    {
+        //
     }
 
     public function handle(Request $request): Response
     {
-        // Пытаемся создать UUID пользователя из данных запроса
+        // Идентифицируем пользователя -
+        // автора статьи
         try {
-            $authorUuid = new UUID($request->jsonBodyField('author_uuid'));
-        } catch (HttpException | InvalidArgumentException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
-
-        // Пытаемся найти пользователя в репозитории
-        try {
-            $author = $this->userRepository->get($authorUuid);
-        } catch (UserNotFoundException $e) {
-            $this->logger->warning("Author not find: $authorUuid.' '.$e->getMessage()");
+            $author = $this->authentication->user($request);
+        } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
         }
 

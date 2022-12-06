@@ -23,15 +23,16 @@ class SqliteUsersRepository implements UserRepositoryInterface
     public function save(User $user): void
     {
         $statement = $this->connection->prepare(
-            'INSERT INTO users (uuid, username, first_name, last_name)
-            VALUES (:uuid, :username, :first_name, :last_name)'
+            'INSERT INTO users (uuid, username, first_name, last_name, password)
+            VALUES (:uuid, :username, :first_name, :last_name, :password)'
         );
 
         $statement->execute([
             ':uuid' => (string)$user->uuid(),
             ':username' => (string)$user->username(),
             ':first_name' => $user->name()->first(),
-            ':last_name' => $user->name()->last()
+            ':last_name' => $user->name()->last(),
+            ':password' => (string)$user->getHashedPassword()
         ]);
     }
 
@@ -70,8 +71,10 @@ class SqliteUsersRepository implements UserRepositoryInterface
 
         return new User(
             new UUID($result['uuid']),
-            new Name($result['first_name'], $result['last_name']),
-            $result['username']
+            new Name($result['first_name'], 
+                     $result['last_name']),
+            $result['username'],
+            $result['password']
         );
     }
 

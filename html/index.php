@@ -12,6 +12,8 @@ use Granal1\Php2\Http\Actions\Posts\CreatePost;
 use Granal1\Php2\Http\Actions\Posts\DeletePost;
 use Granal1\Php2\Http\Actions\Comments\CreateComment;
 use Granal1\Php2\Http\Actions\Likes\PostLikeAction;
+use Granal1\Php2\Http\Auth\LogIn;
+use Granal1\Php2\Http\Auth\LogOut;
 
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Granal1\Php2\Blog\Repositories\PostRepository\SqlitePostRepository;
@@ -70,7 +72,9 @@ $routes = [
     'POST' => [
         '/posts/create' => CreatePost::class,
         '/posts/postLike' => PostLikeAction::class,
-        '/posts/comment' => CreateComment::class
+        '/posts/comment' => CreateComment::class,
+        '/login' => LogIn::class,
+        '/logout' => LogOut::class
     ],
     'DELETE' => [
         '/posts' => DeletePost::class

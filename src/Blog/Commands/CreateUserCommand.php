@@ -36,17 +36,22 @@ class CreateUserCommand
             return;
         }
 
-        $uuid = UUID::random();
+        // Создаём объект пользователя
+        // Функция createFrom сама создаст UUID
+        // и захеширует пароль
+        $user = User::createFrom(
+            new Name(
+                $arguments->get('first_name'),
+                $arguments->get('last_name')
+            ),
+            $username,
+            $arguments->get('password')
+        );
 
-        $this->usersRepository->save(new User(
-            $uuid,
-            new Name($arguments->get('first_name'), 
-                     $arguments->get('last_name')),
-            $username
-        ));
-
-        // Логируем информацию о новом пользователе
-        $this->logger->info("User created: $uuid");
+        $this->usersRepository->save($user);
+        
+        // Получаем UUID созданного пользователя
+        $this->logger->info('User created: ' . $user->uuid());
     }
 
     private function userExists(string $username): bool
