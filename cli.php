@@ -8,21 +8,37 @@ use Granal1\Php2\Blog\Commands\CreateUserCommand;
 use Granal1\Php2\Blog\Commands\Arguments;
 use Granal1\Php2\Blog\Exceptions\AppException;
 use Psr\Log\LoggerInterface;
-
-/*
-use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
-use Granal1\Php2\Blog\Repositories\PostRepository\SqlitePostRepository;
-use Granal1\Php2\Blog\Repositories\CommentRepository\SqliteCommentRepository;
-use Granal1\Php2\Blog\Post;
-use Granal1\Php2\Blog\Comment;
-use Granal1\Php2\Blog\User;
-use Granal1\Php2\Person\Name;
-use Granal1\Php2\Blog\UUID;
-*/
+use Symfony\Component\Console\Application;
+use Granal1\Php2\Blog\Commands\Users\CreateUser;
+use Granal1\Php2\Blog\Commands\Users\UpdateUser;
+use Granal1\Php2\Blog\Commands\Posts\DeletePost;
+use Granal1\Php2\Blog\Commands\FakeData\PopulateDB;
 
 // Подключаем файл bootstrap.php
 // и получаем настроенный контейнер
 $container = require __DIR__ . '/bootstrap.php';
+
+// Создаём объект приложения
+$application = new Application();
+
+// Перечисляем классы команд
+$commandsClasses = [
+    CreateUser::class,
+    DeletePost::class,
+    UpdateUser::class,
+    PopulateDB::class,
+];
+
+foreach ($commandsClasses as $commandClass) {
+    // Посредством контейнера
+    // создаём объект команды
+    $command = $container->get($commandClass);
+    // Добавляем команду к приложению
+    $application->add($command);
+}
+
+// Запускаем приложение
+$application->run();
 
 // При помощи контейнера создаём команду
 $command = $container->get(CreateUserCommand::class);
