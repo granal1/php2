@@ -7,6 +7,14 @@ use Granal1\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Granal1\Php2\Blog\Repositories\PostLikeRepository\PostLikeRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\PostLikeRepository\SqlitePostLikeRepository;
+use Granal1\Php2\Http\Auth\AuthenticationInterface;
+use Granal1\Php2\Http\Auth\JsonBodyUuidIdentification;
+use Granal1\Php2\Http\Auth\PasswordAuthentication;
+use Granal1\Php2\Http\Auth\PasswordAuthenticationInterface;
+use Granal1\Php2\Blog\Repositories\AuthTokensRepository\AuthTokensRepositoryInterface;
+use Granal1\Php2\Blog\Repositories\AuthTokensRepository\SqliteAuthTokensRepository;
+use Granal1\Php2\Http\Auth\TokenAuthenticationInterface;
+use Granal1\Php2\Http\Auth\BearerTokenAuthentication;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -46,6 +54,36 @@ $container->bind(
     SqlitePostLikeRepository::class
 );
 
+//Идентификация
+$container->bind(
+    AuthenticationInterface::class,
+    JsonBodyUuidIdentification::class
+);
+
+$container->bind(
+    AuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+$container->bind(
+    AuthTokensRepositoryInterface::class,
+    SqliteAuthTokensRepository::class
+);
+
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+$container->bind(
+    TokenAuthenticationInterface::class,
+    BearerTokenAuthentication::class
+);
 
 // .. ассоциируем объект логгера из библиотеки monolog
 $logger = (new Logger('blog')); // blog – это (произвольное) имя логгера
