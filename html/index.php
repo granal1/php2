@@ -22,7 +22,13 @@ use Granal1\Php2\Blog\UUID;
 use Granal1\Php2\Blog\Exceptions\HttpException;
 use Granal1\Php2\Blog\Exceptions\AppException;
 
-require_once (__DIR__.'/../vendor/autoload.php');
+use Psr\Log\LoggerInterface;
+
+// Подключаем файл bootstrap.php
+// и получаем настроенный контейнер
+$container = require dirname(__DIR__, 1) . '/bootstrap.php';
+
+//require_once (__DIR__.'/../vendor/autoload.php');
 
 $request = new Request(
     $_GET, 
@@ -30,9 +36,14 @@ $request = new Request(
     file_get_contents('php://input'),
 );
 
+// Получаем объект логгера из контейнера
+$logger = $container->get(LoggerInterface::class);
+
 try {
     $path = $request->path();
-} catch (HttpException) {
+} catch (HttpException $e) {
+    // Логируем сообщение с уровнем WARNING
+    $logger->warning($e->getMessage());
     (new ErrorResponse)->send();
     return;
 }
@@ -44,11 +55,30 @@ try {
     // не можем получить метод
 
     $method = $request->method();
-} catch (HttpException) {
+} catch (HttpException $e) {
+    // Логируем сообщение с уровнем WARNING
+    $logger->warning($e->getMessage());
     (new ErrorResponse)->send();
     return;
 }
 
+$routes = [
+    'GET' => [
+        '/users/show' => FindByUsername::class,
+        '/posts/show' => FindPostByUuid::class
+    ],
+    'POST' => [
+        '/posts/create' => CreatePost::class,
+        '/posts/postLike' => PostLikeAction::class,
+        '/posts/comment' => CreateComment::class
+    ],
+    'DELETE' => [
+        '/posts' => DeletePost::class
+    ]
+];
+
+
+/*
 $routes = [
     'GET' => [
         '/users/show' => new FindByUsername(
@@ -106,24 +136,42 @@ $routes = [
     ],
 
 ];
+*/
+
 
 if (!array_key_exists($method, $routes)) {
-    (new ErrorResponse('method for route not found'))->send();
+    $message = "Method for route not found: $method";
+    // Логируем сообщение с уровнем NOTICE
+    $logger->notice($message);
+    (new ErrorResponse($message))->send();
     return;
-    }
+}
 
 if (!array_key_exists($path, $routes[$method])) {
-    (new ErrorResponse('path for route not found'))->send();
+    $message = "Path for route not found: $path";
+    // Логируем сообщение с уровнем NOTICE
+    $logger->notice($message);
+    (new ErrorResponse($message))->send();
     return;
 }
 
-$action = $routes[$method][$path];
+// Получаем имя класса действия для маршрута
+$actionClassName = $routes[$method][$path];
 
+// С помощью контейнера
+// создаём объект нужного действия
 try {
-    $response = $action->handle($request);
-} catch (AppException $e) {
-    (new ErrorResponse($e->getMessage()))->send();
-}
+        $action = $container->get($actionClassName);
+        $response = $action->handle($request);
+    } catch (Exception $e) {
+        // Логируем сообщение с уровнем ERROR
+        $logger->error($e->getMessage(), ['exception' => $e]);
+        // Больше не отправляем пользователю
+        // конкретное сообщение об ошибке,
+        // а только логируем его
+        (new ErrorResponse)->send();
+        return;
+    }
 
 $response->send();
 

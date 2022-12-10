@@ -16,12 +16,9 @@ use Granal1\Php2\Blog\Exceptions\HttpException;
 use Granal1\Php2\Blog\Exceptions\InvalidArgumentException;
 use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
 
-
 use Granal1\Php2\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
-
-
-
+use Psr\Log\LoggerInterface;
 
 class CreatePost implements ActionInterface
 {
@@ -29,6 +26,8 @@ class CreatePost implements ActionInterface
     public function __construct(
         private PostRepositoryInterface $postRepository,
         private UserRepositoryInterface $userRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger
         ) {
     }
 
@@ -45,6 +44,7 @@ class CreatePost implements ActionInterface
         try {
             $author = $this->userRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->warning("Author not find: $authorUuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
@@ -67,9 +67,12 @@ class CreatePost implements ActionInterface
         // Возвращаем успешный ответ,
         // содержащий UUID новой статьи
         $this->postRepository->save($post);
+
+        // Логируем UUID новой статьи
+        $this->logger->info("Post created: $newPostUuid");
+
         return new SuccessfulResponse([
             'uuid' => (string)$newPostUuid,
         ]);
     }
-
 }

@@ -13,14 +13,17 @@ use Granal1\Php2\Http\SuccessfulResponse;
 use Granal1\Php2\Http\Request;
 use Granal1\Php2\Http\Response;
 use Granal1\Php2\Blog\UUID;
+use Psr\Log\LoggerInterface;
 
 
 
 class FindPostByUuid implements ActionInterface
 {
     public function __construct(
-        private PostRepositoryInterface $postRepository
-    ) {
+        private PostRepositoryInterface $postRepository,
+        private LoggerInterface $logger) // Добавили зависимость от логгера
+    {
+        //
     }
 
     public function handle(Request $request): Response
@@ -34,6 +37,7 @@ class FindPostByUuid implements ActionInterface
         try {
             $post = $this->postRepository->get($uuid);
         } catch (PostNotFoundException $e) {
+            $this->logger->warning("Post not find: $uuid.' '.$e->getMessage()");
             return new ErrorResponse($e->getMessage());
         }
 
