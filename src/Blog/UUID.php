@@ -29,4 +29,12 @@ class UUID
         return $this->uuidString;
     }
 
+
+    /**
+     * Get the value of uuidString
+     */ 
+    public function getUuidString()
+    {
+            return $this->uuidString;
+    }
 }
