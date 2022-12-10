@@ -5,10 +5,12 @@ namespace Granal1\Php2\Blog\Repositories\PostRepository;
 use Granal1\Php2\Blog\Post;
 use Granal1\Php2\Blog\UUID;
 use Granal1\Php2\Blog\Exceptions\PostNotFoundException;
-use Granal1\Php2\Blog\Exceptions\UserNotFoundException;
+use Granal1\Php2\Blog\Exceptions\PostsRepositoryException;
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use PDO;
 use PDOStatement;
+use PDOException;
+
 
 class SqlitePostRepository implements PostRepositoryInterface
 {
@@ -66,14 +68,17 @@ class SqlitePostRepository implements PostRepositoryInterface
         );
     }
 
-    public function delete(Post $post): void
+    public function delete(UUID $uuid): void
     {
-        $statement = $this->connection->prepare(
-            'DELETE FROM posts WHERE uuid = :uuid'
-        );
-
-        $statement->execute([
-            ':uuid' => (string)$post->getUuid()
-        ]);
+        try {
+            $statement = $this->connection->prepare(
+                'DELETE FROM posts WHERE uuid = ?'
+            );
+            $statement->execute([(string)$uuid]);
+        } catch (PDOException $e) {
+            throw new PostsRepositoryException(
+        
+            );
+        }
     }
 }

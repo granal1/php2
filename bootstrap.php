@@ -7,6 +7,8 @@ use Granal1\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Granal1\Php2\Blog\Repositories\PostLikeRepository\PostLikeRepositoryInterface;
 use Granal1\Php2\Blog\Repositories\PostLikeRepository\SqlitePostLikeRepository;
+use Granal1\Php2\Blog\Repositories\CommentRepository\CommentRepositoryInterface;
+use Granal1\Php2\Blog\Repositories\CommentRepository\SqliteCommentRepository;
 use Granal1\Php2\Http\Auth\AuthenticationInterface;
 use Granal1\Php2\Http\Auth\JsonBodyUuidIdentification;
 use Granal1\Php2\Http\Auth\PasswordAuthentication;
@@ -19,6 +21,11 @@ use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Dotenv\Dotenv;
+use Faker\Generator;
+use Faker\Provider\Lorem;
+use Faker\Provider\ru_RU\Internet;
+use Faker\Provider\ru_RU\Person;
+use Faker\Provider\ru_RU\Text;
 
 // Подключаем автозагрузчик Composer
 require_once __DIR__ . '/vendor/autoload.php';
@@ -53,6 +60,14 @@ $container->bind(
     PostLikeRepositoryInterface::class,
     SqlitePostLikeRepository::class
 );
+
+//5. репозиторий комментариев к статьям
+$container->bind(
+    CommentRepositoryInterface::class,
+    SqliteCommentRepository::class
+);
+
+
 
 //Идентификация
 $container->bind(
@@ -116,6 +131,20 @@ if ($_SERVER['LOG_TO_CONSOLE'] === 'yes') {
 $container->bind(
     LoggerInterface::class,
     $logger
+);
+
+// Создаём объект генератора тестовых данных
+$faker = new \Faker\Generator();
+
+// Инициализируем необходимые нам виды данных
+$faker->addProvider(new Person($faker));
+$faker->addProvider(new Text($faker));
+$faker->addProvider(new Internet($faker));
+$faker->addProvider(new Lorem($faker));
+
+$container->bind(
+    \Faker\Generator::class,
+    $faker
 );
 
 // Возвращаем объект контейнера

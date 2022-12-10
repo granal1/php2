@@ -13,7 +13,12 @@ class Comment
     private User $user;
     private $text;
 
-    public function __construct(UUID $uuid, Post $post, User $user, $text)
+    public function __construct(
+        UUID $uuid, 
+        Post $post, 
+        User $user, 
+        $text
+    )
     {
         $this->uuid = $uuid;
         $this->post = $post;
