@@ -49,3 +49,5 @@ $commentRepository->save(   new Comment(UUID::random(),
                             new UUID("5fd5b1d4-8b2f-4c96-a82d-469c96aa38ab"), 
                             "Комментарий 2 к посту автора paul155"));
 */
+$postRepository = new SqlitePostRepository($connection);
+echo $postRepository->get(new UUID("7697cfc7-1bee-4218-984a-58d0a618d039"));

@@ -2,32 +2,34 @@
 
 namespace Granal1\Php2\Blog;
 
-use Granal1\Php2\User\User;
-use Granal1\Php2\User\Article;
+use Granal1\Php2\Blog\User;
+use Granal1\Php2\Blog\Post;
+//use Granal1\Php2\User\Article;
 
 class Comment
 {
     private UUID $uuid;
-    private UUID $postUuid;
-    private UUID $authorUuid;
+    private Post $post;
+    private User $user;
     private $text;
 
-    public function __construct(UUID $uuid, UUID $postUuid, UUID $authorUuid, $text)
+    public function __construct(UUID $uuid, Post $post, User $user, $text)
     {
         $this->uuid = $uuid;
-        $this->postUuid = $postUuid;
-        $this->authorUuid = $authorUuid;
+        $this->post = $post;
+        $this->user = $user;
         $this->text = $text;
     }
 
     public function __toString()
     {
         return  'uuid=' . $this->uuid . 
-                ', postUuid=' . $this->postUuid . 
-                ', authorUuid=' . $this->authorUuid . 
+                ', post=' . $this->post . 
+                ', user=' . $this->user . 
                 ', text=' . $this->text;
     }
 
+    
     /**
      * Get the value of uuid
      */ 
@@ -49,41 +51,41 @@ class Comment
     }
 
     /**
-     * Get the value of postUuid
+     * Get the value of post
      */ 
-    public function getPostUuid()
+    public function getPost()
     {
-        return $this->postUuid;
+        return $this->post;
     }
 
     /**
-     * Set the value of postUuid
+     * Set the value of post
      *
      * @return  self
      */ 
-    public function setPostUuid($postUuid)
+    public function setPost($post)
     {
-        $this->postUuid = $postUuid;
+        $this->post = $post;
 
         return $this;
     }
 
     /**
-     * Get the value of authorUuid
+     * Get the value of user
      */ 
-    public function getAuthorUuid()
+    public function getUser()
     {
-        return $this->authorUuid;
+        return $this->user;
     }
 
     /**
-     * Set the value of authorUuid
+     * Set the value of user
      *
      * @return  self
      */ 
-    public function setAuthorUuid($authorUuid)
+    public function setUser($user)
     {
-        $this->authorUuid = $authorUuid;
+        $this->user = $user;
 
         return $this;
     }
